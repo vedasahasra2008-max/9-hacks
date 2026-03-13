@@ -25,7 +25,7 @@ export default function ResponseCard({ data, onGenerateLetter, onLiked }) {
   const progress = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
   return (
-    <div className="max-w-lg w-full bg-white dark:bg-slate-800/60 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden transition-all duration-200">
+    <div className="max-w-lg w-full bg-white/[0.04] rounded-2xl rounded-tl-sm border border-white/[0.08] overflow-hidden transition-all duration-200">
 
       {/* Domain pill + language badge */}
       <div className="flex items-center gap-2 flex-wrap px-5 pt-4 pb-2">
@@ -54,7 +54,7 @@ export default function ResponseCard({ data, onGenerateLetter, onLiked }) {
 
         {/* Rights summary */}
         {data.rights_summary && (
-          <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
+          <p className="text-sm text-gray-200 leading-relaxed">
             {data.rights_summary}
           </p>
         )}
@@ -62,7 +62,7 @@ export default function ResponseCard({ data, onGenerateLetter, onLiked }) {
         {/* Legal citations */}
         {data.cited_sections?.length > 0 && (
           <div>
-            <h4 className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <h4 className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
               </svg>
@@ -85,14 +85,14 @@ export default function ResponseCard({ data, onGenerateLetter, onLiked }) {
         {data.action_steps?.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 {t('response.actionSteps')}
               </h4>
               {totalSteps > 0 && (
-                <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                <span className="text-xs font-medium text-gray-500">
                   {completedCount}/{totalSteps}
                 </span>
               )}
@@ -117,8 +117,8 @@ export default function ResponseCard({ data, onGenerateLetter, onLiked }) {
                     onClick={() => toggleStep(i)}
                     className={`flex items-start gap-3 w-full text-left group rounded-xl px-3 py-2.5 transition-all duration-200 ${
                       done
-                        ? 'bg-teal-50/60 dark:bg-teal-900/20'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-700/30'
+                        ? 'bg-teal-500/10'
+                        : 'hover:bg-white/[0.04]'
                     }`}
                   >
                     <span className={`shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center mt-0.5 transition-all duration-200 ${
@@ -134,8 +134,8 @@ export default function ResponseCard({ data, onGenerateLetter, onLiked }) {
                     </span>
                     <span className={`text-sm leading-relaxed transition-colors duration-200 ${
                       done
-                        ? 'line-through text-slate-400 dark:text-slate-500'
-                        : 'text-slate-700 dark:text-slate-300'
+                        ? 'line-through text-gray-500'
+                        : 'text-gray-200'
                     }`}>
                       {step}
                     </span>
@@ -158,7 +158,7 @@ export default function ResponseCard({ data, onGenerateLetter, onLiked }) {
         {/* Letter generation buttons */}
         {data.letter_types?.length > 0 && (
           <div>
-            <h4 className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <h4 className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
               </svg>
@@ -224,7 +224,7 @@ export default function ResponseCard({ data, onGenerateLetter, onLiked }) {
 
         {/* Disclaimer */}
         {data.disclaimer && (
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed border-t border-slate-100 dark:border-slate-700/50 pt-3">
+          <p className="text-[11px] text-gray-500 leading-relaxed border-t border-white/[0.06] pt-3">
             {data.disclaimer}
           </p>
         )}

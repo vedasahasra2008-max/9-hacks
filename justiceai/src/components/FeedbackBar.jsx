@@ -39,7 +39,7 @@ export default function FeedbackBar({ onLiked }) {
   }
 
   return (
-    <div className="flex items-center gap-3 pt-3 border-t border-slate-100 dark:border-slate-700/50 mt-1">
+    <div className="flex items-center gap-3 pt-3 border-t border-white/[0.06] mt-1">
       <span className="text-xs text-slate-400 dark:text-slate-500">{t('feedback.question')}</span>
       <div className="flex gap-1">
         <button
