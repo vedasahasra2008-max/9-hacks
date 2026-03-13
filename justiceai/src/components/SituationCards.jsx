@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { colorMap } from '../data/situationData';
 import { useT } from '../i18n';
 
@@ -41,20 +41,37 @@ const icons = {
 
 export default function SituationCards({ onSelectSituation }) {
   const { t } = useT();
-  const [expanded, setExpanded] = useState(null);
+  const [popup, setPopup] = useState(null); // key of the open popup
 
-  function handleClick(key) {
-    const isExpanding = expanded !== key;
-    setExpanded(isExpanding ? key : null);
-    if (isExpanding) {
-      onSelectSituation(situationTypeMap[key]);
-    }
+  // Lock body scroll when popup is open
+  useEffect(() => {
+    document.body.style.overflow = popup ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [popup]);
+
+  // Close on Escape
+  useEffect(() => {
+    function onKey(e) { if (e.key === 'Escape') setPopup(null); }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  function openPopup(key) {
+    setPopup(key);
+    onSelectSituation(situationTypeMap[key]);
   }
 
+  const popupKey = popup;
+  const popupColor = popupKey ? colorMap[colorKeys[popupKey]] : null;
+  const popupTitle = popupKey ? t(`situations.${popupKey}.title`) : '';
+  const popupTitleHi = popupKey ? t(`situations.${popupKey}.titleHi`) : '';
+  const popupDescription = popupKey ? t(`situations.${popupKey}.description`) : '';
+  const popupRights = popupKey ? t(`situations.${popupKey}.rights`) : [];
+
   return (
-    <section className="max-w-4xl mx-auto px-4 py-7">
-      <div className="flex items-center justify-between mb-5">
-        <div>
+    <>
+      <section className="max-w-4xl mx-auto px-4 py-7">
+        <div className="mb-5">
           <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
             {t('cards.heading')}
           </h2>
@@ -62,91 +79,121 @@ export default function SituationCards({ onSelectSituation }) {
             {t('cards.subheading')}
           </p>
         </div>
-        {expanded && (
-          <button
-            onClick={() => { setExpanded(null); onSelectSituation(''); }}
-            className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors flex items-center gap-1"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Clear
-          </button>
-        )}
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {situationKeys.map((key) => {
-          const c = colorMap[colorKeys[key]];
-          const isOpen = expanded === key;
-          const title = t(`situations.${key}.title`);
-          const titleHi = t(`situations.${key}.titleHi`);
-          const description = t(`situations.${key}.description`);
-          const rights = t(`situations.${key}.rights`);
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {situationKeys.map((key) => {
+            const c = colorMap[colorKeys[key]];
+            const title = t(`situations.${key}.title`);
+            const titleHi = t(`situations.${key}.titleHi`);
+            const description = t(`situations.${key}.description`);
 
-          return (
-            <div key={key} className={`rounded-2xl border-2 overflow-hidden transition-all duration-300 card-hover bg-transparent ${isOpen ? c.border + ' shadow-lg' : 'border-transparent shadow-sm hover:' + c.border.split(' ')[0].replace('border-', 'border-')}`}>
-              <button
-                onClick={() => handleClick(key)}
-                className="w-full text-left p-4"
-                aria-expanded={isOpen}
+            return (
+              <div
+                key={key}
+                className="rounded-2xl border border-white/10 bg-transparent overflow-hidden transition-all duration-200 hover:border-white/25"
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 p-4">
+                  {/* Icon */}
                   <div className={`p-2.5 rounded-xl ${c.accent} text-white shrink-0 shadow-sm`}>
                     {icons[key]}
                   </div>
+
+                  {/* Text */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <div>
-                        <h3 className={`font-semibold text-sm ${c.text}`}>{title}</h3>
-                        {title !== titleHi && (
-                          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{titleHi}</p>
-                        )}
-                      </div>
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${isOpen ? c.accent + ' text-white' : 'bg-white/60 dark:bg-black/20 text-slate-400'}`}>
-                        <svg
-                          className={`w-3.5 h-3.5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                          fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg>
-                      </div>
-                    </div>
+                    <h3 className={`font-semibold text-sm ${c.text}`}>{title}</h3>
+                    {title !== titleHi && (
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{titleHi}</p>
+                    )}
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">{description}</p>
                   </div>
-                </div>
-              </button>
 
-              {isOpen && Array.isArray(rights) && (
-                <div className="px-4 pb-4 pt-1">
-                  <div className="border-t border-black/5 dark:border-white/5 pt-3 space-y-2.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">
-                      Your Rights
-                    </p>
-                    {rights.map((right, i) => (
-                      <div key={i} className="flex items-start gap-2.5 msg-enter" style={{ animationDelay: `${i * 50}ms` }}>
-                        <span className={`shrink-0 w-5 h-5 rounded-full ${c.accent} text-white text-[10px] font-bold flex items-center justify-center mt-0.5 shadow-sm`}>
-                          {i + 1}
-                        </span>
-                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{right}</p>
-                      </div>
-                    ))}
-                    <button
-                      onClick={() => handleClick(key)}
-                      className={`mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${c.accent} text-white hover:opacity-90 shadow-sm`}
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-                      </svg>
-                      Ask about this situation
-                    </button>
-                  </div>
+                  {/* Dropdown arrow — opens popup */}
+                  <button
+                    onClick={() => openPopup(key)}
+                    aria-label={`View ${title} rights`}
+                    className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${c.accent} text-white hover:opacity-80`}
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
                 </div>
-              )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Popup Modal */}
+      {popupKey && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={popupTitle}
+        >
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setPopup(null)}
+          />
+
+          {/* Panel */}
+          <div className="relative w-full max-w-lg rounded-2xl bg-[#0e1521] border border-white/10 shadow-2xl overflow-hidden animate-fadeSlideIn">
+            {/* Header stripe */}
+            <div className={`${popupColor.accent} p-5 flex items-center gap-3`}>
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white">
+                {icons[popupKey]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-semibold text-white leading-tight">{popupTitle}</h2>
+                {popupTitle !== popupTitleHi && (
+                  <p className="text-sm text-white/70 mt-0.5">{popupTitleHi}</p>
+                )}
+              </div>
+              <button
+                onClick={() => setPopup(null)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                aria-label="Close"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-          );
-        })}
-      </div>
-    </section>
+
+            {/* Body */}
+            <div className="p-5">
+              <p className="text-sm text-gray-400 mb-4 leading-relaxed">{popupDescription}</p>
+
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 mb-3">
+                Your Rights
+              </p>
+
+              <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                {Array.isArray(popupRights) && popupRights.map((right, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className={`shrink-0 w-5 h-5 rounded-full ${popupColor.accent} text-white text-[10px] font-bold flex items-center justify-center mt-0.5 shadow-sm`}>
+                      {i + 1}
+                    </span>
+                    <p className="text-sm text-gray-300 leading-relaxed">{right}</p>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setPopup(null)}
+                className={`mt-5 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${popupColor.accent} text-white hover:opacity-90 shadow-sm`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                </svg>
+                Ask about this situation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
